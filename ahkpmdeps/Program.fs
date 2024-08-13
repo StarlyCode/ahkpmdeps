@@ -87,21 +87,23 @@ module Utils =
     |> Result.bind getDepDirsFromContent
     |> ignore
 
-    let private defaultToCurrentDirectory =
-        function
-        | Some x -> x
-        | _ -> System.IO.Directory.GetCurrentDirectory() |> DirectoryInfo
-
-    let sync (dir: DirectoryInfo option) =
-        let dir = defaultToCurrentDirectory dir
-        out "Hello World!"
+    let sync (dir: DirectoryInfo ) =
+        out $"Hello World!: {dir.FullName}"
         ()
 
 module Main =
     open Utils
     [<EntryPoint>]
     let main args =
-        let dir = Input.ArgumentMaybe<DirectoryInfo>("Directory", "The directory, or current directory if left blank")
+        //let dir = Input.ArgumentMaybe<DirectoryInfo>("Directory", "The directory, or current directory if left blank")
+        let cd = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory())
+        let dirOrCurrent = Input.Argument<DirectoryInfo>("dir", cd)
+        
+        //let outputDir = Input.Option<DirectoryInfo>(
+        //    aliases = ["-o";"--output-directory"], 
+        //    defaultValue = cd, 
+        //    description = "Output directory folder.")
+
 
         rootCommand args {
             description "ahkpmdeps"
@@ -109,7 +111,7 @@ module Main =
             addCommand (
                 command "sync" {
                     description "Output file path for an attribute"
-                    inputs dir
+                    inputs dirOrCurrent
                     setHandler (sync)
                 })
         }
