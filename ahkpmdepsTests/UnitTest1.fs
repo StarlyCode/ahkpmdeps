@@ -2,6 +2,10 @@ module ahkpmdepsTests
 open FSharp.Core
 open Xunit
 open WinMergeEquals
+open System.IO
+open FsUnit
+open FsUnitTyped
+open System
 
 let sampleLockFile =
     """
@@ -52,16 +56,25 @@ let wm expected actual =
     WinMergeEquals.WinMergeEquals.AreEqualWinMerge expected actual WhitespaceSimplify.None "Exp" "Act"
     
 [<Fact>]
-let Test1 () : unit =
-    let expected = 
-        """
-ahkpm-modules/github.com/pstaszko/TEMPAHK_MidLevelScript/ahkpm-modules/github.com/pstaszko/TEMPAHK_LowLevelScript
-ahkpm-modules/github.com/pstaszko/TEMPAHK_MidLevelScript2/ahkpm-modules/github.com/pstaszko/TEMPAHK_LowLevelScript
-        """
-    ahkpmdeps.Utils.getDepDirsFromContent sampleLockFile
+let Test2 () : unit =
+    let currentDir rest = Path.Combine(Directory.GetCurrentDirectory(), "SampleFiles", rest) |> DirectoryInfo 
+    let expected =
+        [
+            "pstaszko/AHK_Vanilla -> pstaszko/AHK-Notification"
+            "pstaszko/AHK_Vanilla -> pstaszko/AHK_StringManipulation"
+            "pstaszko/AHK_Vanilla -> pstaszko/AHK_Vanilla_FileSystem"
+        ]
+        |> String.concat Environment.NewLine
+
+    ahkpmdeps.Core.GenerateDotSyntax (currentDir "ValidWithDependencies")
+    //ahkpmdeps.Core.GenerateDotSyntax (DirectoryInfo @"C:\Dev\AHK_Modules\AHK_Vanilla\")
     |> function
-    | Ok x -> 
-        x.installPaths 
-        |> String.concat "\n" 
-        |> wm expected
-    | Error x -> Assert.Fail x
+    | Ok lines ->
+        lines
+        |> String.concat Environment.NewLine
+        |> shouldEqual expected
+    | Error x ->
+        x
+        |> String.concat Environment.NewLine
+        |> fun x -> Xunit.Assert.Fail(x)
+    //|> shouldEqual 0

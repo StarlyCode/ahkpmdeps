@@ -1,0 +1,31 @@
+{
+  "lockfileVersion": "1",
+  "dependencies": {
+    "github.com/pstaszko/AHK-Notification": "branch:master",
+    "github.com/pstaszko/AHK_StringManipulation": "branch:main",
+    "github.com/pstaszko/AHK_Vanilla_FileSystem": "branch:main"
+  },
+  "resolved": [
+    {
+      "name": "github.com/pstaszko/AHK-Notification",
+      "version": "branch:master",
+      "sha": "94b3bd93ba854e45e1d33ace2d0668c807bff8ce",
+      "installPath": "ahkpm-modules/github.com/pstaszko/AHK-Notification",
+      "dependencies": {}
+    },
+    {
+      "name": "github.com/pstaszko/AHK_StringManipulation",
+      "version": "branch:main",
+      "sha": "1c680afa6a0dbc445b31764d52c504ba37cfac11",
+      "installPath": "ahkpm-modules/github.com/pstaszko/AHK_StringManipulation",
+      "dependencies": {}
+    },
+    {
+      "name": "github.com/pstaszko/AHK_Vanilla_FileSystem",
+      "version": "branch:main",
+      "sha": "547fb3f9967795f1c76c62b8682da98715a5d400",
+      "installPath": "ahkpm-modules/github.com/pstaszko/AHK_Vanilla_FileSystem",
+      "dependencies": {}
+    }
+  ]
+}

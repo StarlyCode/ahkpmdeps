@@ -7,6 +7,12 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="SampleFiles\ValidWithDependencies\ahkpm.lock">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="SampleFiles\ValidWithDependencies\ahkpm.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="paket.references" />
     <Compile Include="UnitTest1.fs" />
     <Compile Include="Program.fs" />

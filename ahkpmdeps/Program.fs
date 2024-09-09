@@ -2,11 +2,84 @@ namespace ahkpmdeps
 //Op: Auto
 open FSharp.SystemCommandLine
 open System
+open System.Collections.Generic
 open System.IO
-open System.Text.Json
 open System.Linq
+open System.Text.Json
 //Op: End
-module Models =
+[<AutoOpen>]
+module Abbreviations =
+    type DI = DirectoryInfo
+    type FI = FileInfo
+
+module PackageFileModel =
+    //let SamplePackageFile =
+    //    """
+    //    {
+    //      "version": "1.0.0",
+    //      "description": "",
+    //      "repository": "https://github.com/pstaszko/AHK_Vanilla",
+    //      "website": "https://github.com/pstaszko/AHK_Vanilla",
+    //      "license": "MIT",
+    //      "issueTracker": "https://github.com/pstaszko/AHK_Vanilla/issues",
+    //      "include": "Vanilla.ahk",
+    //      "author": {
+    //        "name": "Paul Staszko",
+    //        "email": "paulstaszko@gmail.com",
+    //        "website": ""
+    //      },
+    //      "scripts": {},
+    //      "dependencies": {
+    //        "github.com/pstaszko/AHK-Notification": "branch:master",
+    //        "github.com/pstaszko/AHK_StringManipulation": "branch:main",
+    //        "github.com/pstaszko/AHK_Vanilla_FileSystem": "branch:main"
+    //      }
+    //    }
+    //    """
+
+    type Author =
+        {
+            name: string
+            email: string
+            website: string
+        }
+    //type Dependency =
+    //    {
+    //        name: string
+    //        version: string
+    //    }
+    type PackageFile =
+        {
+            version: string
+            description: string
+            repository: string
+            website: string
+            author: Author
+            license: string
+            issueTracker: string
+            ``include``: string
+            dependencies: IDictionary<string, string>
+        }
+
+    let cleanURL (value: string) = 
+        value.Replace("github.com/", "").Replace("https://", "")
+
+    let TryParsePackageContent (content: string) =
+        try
+            JsonSerializer.Deserialize<PackageFile>(content)
+            |> fun x ->
+                { x with
+                    repository = cleanURL x.repository
+                    dependencies =
+                        x.dependencies
+                        |> Seq.map (fun kvp -> cleanURL kvp.Key, cleanURL kvp.Value)
+                        |> dict
+                        |> fun x -> x
+                }
+            |> Ok
+        with ex -> ex.Message |> Error
+
+module LockFileModel =
     type Resolved =
         {
             name: string
@@ -15,103 +88,119 @@ module Models =
             installPath: string
             dependencies: Map<string, string>
         }
+
     type AHKPMLockFile =
         {
             dependencies: Map<string, string>
             resolved: Resolved[]
         }
-module Utils =
-    open Models
 
-    let JoinLines(text: #seq<string>) =
-        String.Join(Environment.NewLine, text |> Seq.toArray)
-
-    let out (o: obj) = System.Console.WriteLine(o.ToString())
-    let cd = System.IO.Directory.GetCurrentDirectory()
-    let getLockContent() =
+    let TryParseLockFileContent (content: string) =
         try
-            System.IO.File.ReadAllText "ahkpm.lock"
+            JsonSerializer.Deserialize<AHKPMLockFile>(content)
             |> Ok
         with ex -> ex.Message |> Error
 
-    let getDepDirsFromContent (content: string) =
-        let lockFile = JsonSerializer.Deserialize<AHKPMLockFile>(content)
+module FSharp_SystemCommandLine_Utils =
+    let dirOrCur =
+        let currentDir = new System.Func<DI>(fun () -> System.IO.Directory.GetCurrentDirectory() |> DI)
+        Input.OfArgument(System.CommandLine.Argument<DirectoryInfo>("Directory", currentDir, "The directory, or current directory if left blank"))
 
-        let topLevelDependencies =
-            lockFile.dependencies.Keys
-            |> Seq.map (fun x -> "ahkpm-modules/" + x)
-            |> Seq.toList
+module IO =
+    let getFileHere (dir: DI) name =
+        let path = Path.Combine(dir.FullName, name)
+        if System.IO.Path.Exists path then
+            System.IO.File.ReadAllText path
+            |> Ok
+        else
+            Error $"File is missing {path}"
 
-        let resolvedByNameAndSha =
-            lockFile.resolved
-            |> Array.groupBy (fun x -> {|Name = x.name.ToLower(); SHA = x.sha.ToLower()|})
+module Git =
+    open LibGit2Sharp
+    let cleanSha (sha: string) = sha.Substring(0, 7)
 
-        resolvedByNameAndSha
-        |> Array.map fst
-        |> Array.distinct
-        |> Array.groupBy (fun x -> x.Name)
-        |> Array.filter (fun (z, y) -> y.Length > 1)
-        |> Array.map
-            (fun (z, y) ->
-                let shas =
-                    y
-                    |> Array.map (_.SHA)
-                    |> String.concat ", "
-                "Duplicate resolved entries for " + z + " with SHAs: " + shas
-                |> Error
-            )
-        |> Result.collect
-        |> Result.map ignore
-        |> Result.mapError JoinLines
-        |> Result.lift 
-            (fun _ -> 
-                let installPaths =
-                    lockFile.resolved.ExceptBy(topLevelDependencies, (fun r -> r.installPath))
-                    //|> Array.map (fun x -> x.installPath)
-                    //|> Array.except topLevelDependencies
-                    
-                let installPaths =
-                    lockFile.resolved
-                    |> Array.map (fun x -> x.installPath)
-                    |> Array.except topLevelDependencies
+    let private GetHeadSha (dir: DirectoryInfo) =
+        new Repository(dir.FullName)
+        |> fun x -> x.Head.Tip.Sha
 
-                let finalParts =
-                    installPaths
-                    |> Array.map (fun x -> "ahkpm-modules/" + (System.Text.RegularExpressions.Regex.Split(x, "ahkpm-modules/") |> Array.last))
-                {|
-                    installPaths = installPaths
-                |}
-            )
+    let rec TryGetHeadShaOrLookInparentRecursively (dir: DirectoryInfo) =
+        try
+            GetHeadSha dir |> Ok
+        with
+        | ex ->
+            if dir.Parent = null then
+                Error ex.Message
+            else
+                TryGetHeadShaOrLookInparentRecursively dir.Parent
 
-    getLockContent()
-    |> Result.bind getDepDirsFromContent
-    |> ignore
+module Core =
+    open Git
+    open IO
+    open PackageFileModel
 
-    let sync (dir: DirectoryInfo ) =
-        out $"Hello World!: {dir.FullName}"
-        ()
+    let combineResults (result1: Result<'a, 'e>) (result2: Result<'b, 'e>) : Result<'a * 'b, 'e list> =
+        match result1, result2 with
+        | Ok v1, Ok v2 -> Ok (v1, v2)
+        | Ok _, Error e -> Error [e]
+        | Error e1, Ok _ -> Error [e1]
+        | Error e1, Error e2 -> Error [e1; e2]
+    
+    let GenerateDotSyntax (dir: DirectoryInfo) =
+        //let x = new LibGit2Sharp.Repository(dir.FullName)
+        //let sha = x.Head.Tip.Sha
+        TryGetHeadShaOrLookInparentRecursively dir
+        |> Result.mapError List.singleton
+        |> Result.bind (fun sha ->
+            let packageFile =
+                getFileHere dir "ahkpm.json"
+                |> Result.bind PackageFileModel.TryParsePackageContent
+            let lockFile =
+                getFileHere dir "ahkpm.lock"
+                |> Result.bind LockFileModel.TryParseLockFileContent
+            //let findShaOfDependency (lock: LockFileModel.AHKPMLockFile) (dep: string) =
+            //    lock.resolved
+            //    |> Seq.tryFind (fun x -> x.name = dep)
+            //    |> Option.map (fun x -> x.sha)
+            //    |> Option.defaultValue ""
+            combineResults packageFile lockFile
+            |> Result.lift
+                (fun (package, lock) ->
+                    let shaOfDependency = 
+                        lock.resolved 
+                        |> Seq.map 
+                            (fun x -> x.name |> cleanURL, x.sha |> cleanSha) 
+                        |> Map.ofSeq
+                    package.dependencies.Keys
+                    |> Seq.map (fun dep -> $"\"{package.repository} {sha |> cleanSha}\" -> \"{dep} {shaOfDependency |> Map.find dep}\"")
+                    |> Seq.toList
+                )
+            |> fun x -> x
+        )
+
+module Commands =
+    open Core
+    let OutputDotSyntax (dir: DirectoryInfo) =
+        GenerateDotSyntax dir
+        |> function
+        | Ok x ->
+            x |> String.concat "\n" |> printfn "%s"
+            0
+        | Error e ->
+            e |> String.concat "\n" |> printfn "%s"
+            1
 
 module Main =
-    open Utils
+    open FSharp_SystemCommandLine_Utils
+
     [<EntryPoint>]
     let main args =
-        //let dir = Input.ArgumentMaybe<DirectoryInfo>("Directory", "The directory, or current directory if left blank")
-        let cd = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory())
-        let dirOrCurrent = Input.Argument<DirectoryInfo>("dir", cd)
-        
-        //let outputDir = Input.Option<DirectoryInfo>(
-        //    aliases = ["-o";"--output-directory"], 
-        //    defaultValue = cd, 
-        //    description = "Output directory folder.")
-
-
         rootCommand args {
             description "ahkpmdeps"
             setHandler id
             addCommand (
-                command "sync" {
-                    description "Output file path for an attribute"
-                    inputs dirOrCurrent
-                    setHandler (sync)
+                command "OutputDotSyntax" {
+                    description "Output Dot syntax for specified directory"
+                    inputs dirOrCur
+                    setHandler (Commands.OutputDotSyntax)
                 })
         }
