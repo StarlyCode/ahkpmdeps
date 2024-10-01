@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "description": "",
+  "repository": "https://github.com/pstaszko/TEMPAHK_MidLevelScript",
+  "website": "https://github.com/pstaszko/TEMPAHK_MidLevelScript",
+  "license": "MIT",
+  "issueTracker": "https://github.com/pstaszko/TEMPAHK_MidLevelScript/issues",
+  "include": "GeneralUtils.ahk",
+  "author": {
+    "name": "Paul Staszko",
+    "email": "paulstaszko@gmail.com",
+    "website": ""
+  },
+  "scripts": {},
+  "dependencies": {
+    "github.com/pstaszko/TEMPAHK_LowLevelScript": "branch:main"
+  }
+}

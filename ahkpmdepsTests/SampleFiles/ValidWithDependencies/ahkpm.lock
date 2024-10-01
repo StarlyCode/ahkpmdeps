@@ -1,30 +1,31 @@
 {
   "lockfileVersion": "1",
   "dependencies": {
-    "github.com/pstaszko/AHK-Notification": "branch:master",
-    "github.com/pstaszko/AHK_StringManipulation": "branch:main",
-    "github.com/pstaszko/AHK_Vanilla_FileSystem": "branch:main"
+    "github.com/pstaszko/TEMPAHK_LowLevelScript": "branch:main",
+    "github.com/pstaszko/TEMPAHK_MidLevelScript": "branch:main"
   },
   "resolved": [
     {
-      "name": "github.com/pstaszko/AHK-Notification",
-      "version": "branch:master",
-      "sha": "94b3bd93ba854e45e1d33ace2d0668c807bff8ce",
-      "installPath": "ahkpm-modules/github.com/pstaszko/AHK-Notification",
+      "name": "github.com/pstaszko/TEMPAHK_LowLevelScript",
+      "version": "branch:main",
+      "sha": "5de4c942922f1f0e7446d94a3eaa9ca0bc21b6c6",
+      "installPath": "ahkpm-modules/github.com/pstaszko/TEMPAHK_LowLevelScript",
       "dependencies": {}
     },
     {
-      "name": "github.com/pstaszko/AHK_StringManipulation",
+      "name": "github.com/pstaszko/TEMPAHK_MidLevelScript",
       "version": "branch:main",
-      "sha": "1c680afa6a0dbc445b31764d52c504ba37cfac11",
-      "installPath": "ahkpm-modules/github.com/pstaszko/AHK_StringManipulation",
-      "dependencies": {}
+      "sha": "8d21a7c234dbe35e511cce229aabf4bc710b64d3",
+      "installPath": "ahkpm-modules/github.com/pstaszko/TEMPAHK_MidLevelScript",
+      "dependencies": {
+        "github.com/pstaszko/TEMPAHK_LowLevelScript": "branch:main"
+      }
     },
     {
-      "name": "github.com/pstaszko/AHK_Vanilla_FileSystem",
+      "name": "github.com/pstaszko/TEMPAHK_LowLevelScript",
       "version": "branch:main",
-      "sha": "547fb3f9967795f1c76c62b8682da98715a5d400",
-      "installPath": "ahkpm-modules/github.com/pstaszko/AHK_Vanilla_FileSystem",
+      "sha": "5de4c942922f1f0e7446d94a3eaa9ca0bc21b6c6",
+      "installPath": "ahkpm-modules/github.com/pstaszko/TEMPAHK_MidLevelScript/ahkpm-modules/github.com/pstaszko/TEMPAHK_LowLevelScript",
       "dependencies": {}
     }
   ]

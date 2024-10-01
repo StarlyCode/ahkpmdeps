@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "description": "",
+  "repository": "https://github.com/pstaszko/TEMPAHK_LowLevelScript",
+  "website": "https://github.com/pstaszko/TEMPAHK_LowLevelScript",
+  "license": "MIT",
+  "issueTracker": "https://github.com/pstaszko/TEMPAHK_LowLevelScript/issues",
+  "include": "StringUtils.ahk",
+  "author": {
+    "name": "Paul Staszko",
+    "email": "paulstaszko@gmail.com",
+    "website": ""
+  },
+  "scripts": {},
+  "dependencies": {}
+}

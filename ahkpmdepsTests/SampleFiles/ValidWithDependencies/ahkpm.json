@@ -1,11 +1,11 @@
 {
   "version": "1.0.0",
   "description": "",
-  "repository": "https://github.com/pstaszko/AHK_Vanilla",
-  "website": "https://github.com/pstaszko/AHK_Vanilla",
+  "repository": "https://github.com/StarlyCode/ahkpmdeps",
+  "website": "https://github.com/StarlyCode/ahkpmdeps",
   "license": "MIT",
-  "issueTracker": "https://github.com/pstaszko/AHK_Vanilla/issues",
-  "include": "Vanilla.ahk",
+  "issueTracker": "https://github.com/StarlyCode/ahkpmdeps/issues",
+  "include": "",
   "author": {
     "name": "Paul Staszko",
     "email": "paulstaszko@gmail.com",
@@ -13,8 +13,7 @@
   },
   "scripts": {},
   "dependencies": {
-    "github.com/pstaszko/AHK-Notification": "branch:master",
-    "github.com/pstaszko/AHK_StringManipulation": "branch:main",
-    "github.com/pstaszko/AHK_Vanilla_FileSystem": "branch:main"
+    "github.com/pstaszko/TEMPAHK_LowLevelScript": "branch:main",
+    "github.com/pstaszko/TEMPAHK_MidLevelScript": "branch:main"
   }
 }
