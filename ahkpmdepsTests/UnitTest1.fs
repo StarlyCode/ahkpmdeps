@@ -60,10 +60,10 @@ let Test2 () : unit =
     let currentDir rest = Path.Combine(Directory.GetCurrentDirectory(), "SampleFiles", rest) |> DirectoryInfo 
     let expected =
         [
-            "pstaszko/AHK_Vanilla -> pstaszko/AHK-Notification"
-            "pstaszko/AHK_Vanilla -> pstaszko/AHK_StringManipulation"
-            "pstaszko/AHK_Vanilla -> pstaszko/AHK_Vanilla_FileSystem"
+            """ "StarlyCode/ahkpmdeps d083320" -> "pstaszko/TEMPAHK_LowLevelScript 5de4c94" """
+            """ "StarlyCode/ahkpmdeps d083320" -> "pstaszko/TEMPAHK_MidLevelScript 8d21a7c" """
         ]
+        |> Seq.map _.Trim()
         |> String.concat Environment.NewLine
 
     ahkpmdeps.Core.GenerateDotSyntax (currentDir "ValidWithDependencies")
