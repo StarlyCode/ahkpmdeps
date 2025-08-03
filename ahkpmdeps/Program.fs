@@ -61,7 +61,7 @@ module PackageFileModel =
             dependencies: IDictionary<string, string>
         }
 
-    let cleanURL (value: string) = 
+    let cleanURL (value: string) =
         value.Replace("github.com/", "").Replace("https://", "")
 
     let TryParsePackageContent (content: string) =
@@ -144,7 +144,7 @@ module Core =
         | Ok _, Error e -> Error [e]
         | Error e1, Ok _ -> Error [e1]
         | Error e1, Error e2 -> Error [e1; e2]
-    
+
     let GenerateDotSyntax (dir: DirectoryInfo) =
         //let x = new LibGit2Sharp.Repository(dir.FullName)
         //let sha = x.Head.Tip.Sha
@@ -165,10 +165,10 @@ module Core =
             combineResults packageFile lockFile
             |> Result.lift
                 (fun (package, lock) ->
-                    let shaOfDependency = 
-                        lock.resolved 
-                        |> Seq.map 
-                            (fun x -> x.name |> cleanURL, x.sha |> cleanSha) 
+                    let shaOfDependency =
+                        lock.resolved
+                        |> Seq.map
+                            (fun x -> x.name |> cleanURL, x.sha |> cleanSha)
                         |> Map.ofSeq
                     package.dependencies.Keys
                     |> Seq.map (fun dep -> $"\"{package.repository} {sha |> cleanSha}\" -> \"{dep} {shaOfDependency |> Map.find dep}\"")

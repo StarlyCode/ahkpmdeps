@@ -54,10 +54,10 @@ let sampleLockFile =
 
 let wm expected actual =
     WinMergeEquals.WinMergeEquals.AreEqualWinMerge expected actual WhitespaceSimplify.None "Exp" "Act"
-    
+
 [<Fact>]
 let Test2 () : unit =
-    let currentDir rest = Path.Combine(Directory.GetCurrentDirectory(), "SampleFiles", rest) |> DirectoryInfo 
+    let currentDir rest = Path.Combine(Directory.GetCurrentDirectory(), "SampleFiles", rest) |> DirectoryInfo
     let expected =
         [
             """ "StarlyCode/ahkpmdeps d083320" -> "pstaszko/TEMPAHK_LowLevelScript 5de4c94" """
